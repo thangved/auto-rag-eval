@@ -27,9 +27,7 @@ class ArxivData:
         self.n_samples = n_samples
         self.max_char_length = max_char_length
         self.min_char_length = min_char_length
-        self.cat_list = ['cs', 'econ', 'eess', 'math', 'astro-ph',
-                         'cond-mat', 'hep', 'nlin', 'nucl',
-                         'physics', 'q-bio', 'q-fin', 'stat']
+        self.cat_list = ['cs']
 
     def process_qna(self, row):
 
@@ -86,7 +84,8 @@ class ArxivData:
                                )
 
         # Remove too lengthy or shorty answers to avoid repeting operation
-        sub_df = dataset.filter(lambda x: self.min_char_length <= len(x['abstract']) <= self.max_char_length)
+        sub_df = dataset.filter(lambda x: self.min_char_length <= len(
+            x['abstract']) <= self.max_char_length)
         logger.error((f"Reducing dataset size from {len(dataset)} to {len(sub_df)} by keeping abstract with"
                      f" character length between {self.min_char_length} and {self.max_char_length}."))
 
@@ -113,7 +112,8 @@ class ArxivData:
         data_cat_list = []
 
         for cat in tqdm(self.cat_list):
-            data_cat_list.append(reduce(lambda res, f: f(res), funcs(cat), sub_df))
+            data_cat_list.append(
+                reduce(lambda res, f: f(res), funcs(cat), sub_df))
         concat_dataset = concatenate_datasets(data_cat_list).shuffle(seed=42)
 
         concat_dataset.to_json(f"{ROOTPATH}/Arxiv/KnowledgeCorpus/main/data_{datetime.fromtimestamp(time.time()).strftime('%Y%m%d%H')}.json",

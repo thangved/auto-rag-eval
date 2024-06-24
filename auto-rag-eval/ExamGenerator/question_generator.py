@@ -29,14 +29,15 @@ class BatchExamGenerator:
         self.task_domain = task_domain
 
         self.model_map = {
-                          'claudev2': ClaudeExamGenerator(step_size=1,
-                                                          task_domain=self.task_domain,
-                                                          llm_model=ClaudeV2()),
-                          'claude_instant': ClaudeExamGenerator(step_size=1,
-                                                                task_domain=self.task_domain,
-                                                                llm_model=ClaudeInstant())
-                          }
-        assert not (any([model not in self.model_map.keys() for model in self.model_list]))
+            'claudev2': ClaudeExamGenerator(step_size=1,
+                                            task_domain=self.task_domain,
+                                            llm_model=ClaudeV2()),
+            'claude_instant': ClaudeExamGenerator(step_size=1,
+                                                  task_domain=self.task_domain,
+                                                  llm_model=ClaudeInstant())
+        }
+        assert not (any([model not in self.model_map.keys()
+                    for model in self.model_list]))
 
     def batch_generate_exam(self, data_folder: str) -> None:
 
@@ -69,7 +70,8 @@ class BatchExamGenerator:
                     with concurrent.futures.ProcessPoolExecutor() as executor:
                         futurs = {model: executor.submit(self.model_map[model].generate_exam, batch)
                                   for model in self.model_list}
-                        generated_questions = {model: futur.result() for model, futur in futurs.items()}
+                        generated_questions = {
+                            model: futur.result() for model, futur in futurs.items()}
                 else:
                     generated_questions = {model: self.model_map[model].generate_exam(batch)
                                            for model in self.model_list}
@@ -82,7 +84,10 @@ class BatchExamGenerator:
 
         except Exception as e:
 
-            logger.error(f"Failure to collect questions for batch {batch_index}: {e}")
+            logger.exception(e)
+
+            logger.error(
+                f"Failure to collect questions for batch {batch_index}: {e}")
 
 
 if __name__ == "__main__":

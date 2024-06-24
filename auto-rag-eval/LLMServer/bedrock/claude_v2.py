@@ -1,6 +1,6 @@
 import json
 import time
-from typing import Generator
+from typing import Dict, Generator, Union
 
 import boto3
 from botocore.config import Config
@@ -23,7 +23,7 @@ class ClaudeV2(BaseLLM):
 
     def __init__(self):
         self.bedrock = boto3.client(
-            service_name='bedrock',
+            service_name='bedrock-runtime',
             config=Config(read_timeout=1000))
         self.modelId = 'anthropic.claude-v2'
         self.accept = 'application/json'
@@ -41,7 +41,9 @@ class ClaudeV2(BaseLLM):
                               max=WAIT_EXPONENTIAL_MAX),
     )
     def invoke(self,
-               prompt: str) -> str:
+               prompt: str,
+               params: Dict[str, Union[int, str]]
+               ) -> str:
 
         body = json.dumps({
             "prompt": prompt,
