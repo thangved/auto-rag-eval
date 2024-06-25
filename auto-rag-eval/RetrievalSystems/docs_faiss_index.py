@@ -38,7 +38,8 @@ class FaissIndex:
             logger.error(f"Deleting existing Faiss index: {index_file_name}")
             os.remove(index_file_name)
         if os.path.isfile(cache_file_name):
-            logger.error(f"Deleting existing Faiss index cache {cache_file_name}")
+            logger.error(
+                f"Deleting existing Faiss index cache {cache_file_name}")
             os.remove(cache_file_name)
 
         # TODO: asssert set(self.docs_data_columns.features.keys()) == set(self.docs_data_columns)
@@ -93,8 +94,8 @@ class DocFaissIndex(FaissIndex):
                                truncation=True,
                                return_tensors="pt")
         with torch.no_grad():
-            a_reps = self.ctx_model(p["input_ids"].to("cuda:0"),
-                                    p["attention_mask"].to("cuda:0")).pooler_output
+            a_reps = self.ctx_model(p["input_ids"].to(self.device),
+                                    p["attention_mask"].to(self.device)).pooler_output
 
         return {"embeddings": a_reps.cpu().numpy()}
 
